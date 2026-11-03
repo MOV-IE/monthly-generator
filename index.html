@@ -69,6 +69,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
 
   <fieldset><legend>기본</legend>
     <div class="row"><label>형태</label><div class="seg" data-k="format"><button data-v="insert">속지 2면</button><button data-v="wall">큰 달력</button><button data-v="year">연간</button></div></div>
+    <div class="row" id="yearFrontRow"><label>맨 앞에 연간 달력</label><input type="checkbox" data-k="yearFront"></div>
     <div class="row"><label>종류</label><div class="seg" data-k="mode"><button data-v="dated">날짜형</button><button data-v="blank">만년형</button></div></div>
     <div class="row"><label>연도</label><input type="number" data-k="year" min="2000" max="2100"></div>
     <div class="row"><label>시작 월</label><input type="number" data-k="from" min="1" max="12"></div>
@@ -116,7 +117,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   </fieldset>
 
   <fieldset id="fsYear"><legend>연간 달력</legend>
-    <div class="row"><label>크기</label><div class="seg" data-k="yearSize"><button data-v="insert">속지 크기</button><button data-v="a4">A4</button></div></div>
+    <div class="row" id="yearSizeRow"><label>크기</label><div class="seg" data-k="yearSize"><button data-v="insert">속지 크기</button><button data-v="a4">A4</button></div></div>
     <div class="row"><label>월 이름</label><div class="seg" data-k="yearMonth"><button data-v="full">January</button><button data-v="Jan">Jan</button><button data-v="jan">jan</button><button data-v="num">1</button></div></div>
     <div class="row"><label>글자 굵기</label><div class="seg" data-k="yearWeight"><button data-v="400">보통</button><button data-v="500">중간</button><button data-v="600">굵게</button></div></div>
     <div class="row"><label>글자 배율</label><input type="number" data-k="yearScale" step=".1" min=".5"></div>
@@ -169,7 +170,7 @@ const DEFAULTS = {
   font:"Futura, 'Futura PT', Jost", customFont:'', fsMonth:22, fsDay:9, fsDate:8, dateAlign:'center',
   lineColor:'#5b4636', lineW:.15, ink:'#2b2b2b', red:'#c8463a', yearColor:'#888888', satColor:false, sat:'#3a62a8',
   holidays:true, extraRed:'',
-  format:'insert', yearSize:'insert', yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'a4', orient:'auto', safe:5, duplex:'single', crop:true, w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
+  format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'a4', orient:'auto', safe:5, duplex:'single', crop:true, w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
 };
 const KEY = 'monthly-insert-editor-v7';
 let st = {...DEFAULTS};
@@ -317,7 +318,7 @@ function placeSheet(slots, label, o, mirror) {
 
 const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 function yearPage(y, W, H) {
-  const ins = st.format === 'year' && st.yearSize === 'insert';
+  const ins = !(st.format === 'year' && st.yearSize === 'a4');
   const L = ins ? +st.mIn : 14, R = ins ? +st.mOut : 14, T = ins ? +st.mTop + 4 : 18, B = ins ? +st.mBot : 14;
   const cols = W > H * 0.9 ? 4 : 3, rows = 12 / cols;
   const gx = (W - L - R) * 0.06;
@@ -392,7 +393,9 @@ function render() {
   document.getElementById('fsSheet').style.display = (st.format === 'insert' || yIns) ? '' : 'none';
   document.getElementById('fsSize').style.display = (st.format === 'insert' || yIns) ? '' : 'none';
   document.getElementById('fsWall').style.display = st.format === 'wall' ? '' : 'none';
-  document.getElementById('fsYear').style.display = st.format === 'year' ? '' : 'none';
+  document.getElementById('fsYear').style.display = (st.format === 'year' || (st.format === 'insert' && st.yearFront)) ? '' : 'none';
+  document.getElementById('yearSizeRow').style.display = st.format === 'year' ? '' : 'none';
+  document.getElementById('yearFrontRow').style.display = st.format === 'insert' ? '' : 'none';
   if (st.format === 'year') {
     const W = yIns ? +st.w : 210, H = yIns ? +st.h : 297;
     const yp = yearPage(+st.year, W, H);
@@ -424,21 +427,22 @@ function render() {
     save(); return;
   }
   const sp = months.map(([y, m]) => spread(y, m));
+  const yp = st.yearFront ? yearPage(+st.year, +st.w, +st.h) : '';
   let html = '', hint = '';
   if (st.sheet === 'orig') {
-    html = sp.map(([L, R]) => `<div class="spread">${L}${R}</div>`).join('');
+    html = (yp ? `<div class="spread">${yp}</div>` : '') + sp.map(([L, R]) => `<div class="spread">${L}${R}</div>`).join('');
     hint = '속지 크기 그대로 한 쪽씩 저장해요.';
   } else {
     const o = layout();
     const name = st.sheet.toUpperCase() + (o.land ? ' 가로' : ' 세로');
     if (st.duplex !== 'duplex') {
-      const pages = sp.flat();
+      const pages = (yp ? [yp] : []).concat(sp.flat());
       let n = 1;
       for (let i = 0; i < pages.length; i += o.n) html += placeSheet(pages.slice(i, i + o.n), `${n++}장`, o, false);
       hint = `${name}, 한 장에 ${o.n}쪽 · 총 ${Math.ceil(pages.length / o.n)}장. 단면으로 출력해 재단선대로 잘라요.`;
     } else {
       const leaves = [];
-      for (let i = 0; i <= sp.length; i++) leaves.push({ front: i > 0 ? sp[i-1][1] : '', back: i < sp.length ? sp[i][0] : '' });
+      for (let i = 0; i <= sp.length; i++) leaves.push({ front: i > 0 ? sp[i-1][1] : yp, back: i < sp.length ? sp[i][0] : '' });
       let n = 1;
       for (let i = 0; i < leaves.length; i += o.n) {
         const g = leaves.slice(i, i + o.n);
@@ -446,7 +450,7 @@ function render() {
         html += placeSheet(g.map(l => l.back), `${n}장 뒷면`, o, true);
         n++;
       }
-      hint = `${name}, 한 장에 낱장 ${o.n}개 · 총 ${Math.ceil(leaves.length / o.n)}장(앞뒤). 앞뒷면을 맞춰 두어서 자르고 순서대로 끼우면 한 달이 마주 보여요. 프린터에서 양면 · <b>${o.land ? '짧은 쪽' : '긴 쪽'} 넘기기</b>로 출력하세요.`;
+      hint = (yp ? '첫 낱장 앞면에 연간 달력이 들어가요. ' : '') + `${name}, 한 장에 낱장 ${o.n}개 · 총 ${Math.ceil(leaves.length / o.n)}장(앞뒤). 앞뒷면을 맞춰 두어서 자르고 순서대로 끼우면 한 달이 마주 보여요. 프린터에서 양면 · <b>${o.land ? '짧은 쪽' : '긴 쪽'} 넘기기</b>로 출력하세요.`;
     }
     if (o.tooBig) hint = '<b style="color:#c8463a">속지가 용지(안전 여백 포함)보다 커요.</b> 안전 여백을 줄이거나 큰 용지를 고르세요. ' + hint;
     st._page = `${o.W}mm ${o.H}mm`;
