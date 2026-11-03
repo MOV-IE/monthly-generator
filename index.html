@@ -305,7 +305,9 @@ function placeSheet(slots, label, o, mirror) {
     if (!html) return;
     const r = Math.floor(i / o.cols); let c = i % o.cols;
     if (mirror) c = o.cols - 1 - c;
-    h += html.replace('<section class="page', `<section style="left:${o.x0 + c*pw}mm;top:${o.y0 + r*ph}mm" class="page`);
+    const pos = `left:${o.x0 + c*pw}mm;top:${o.y0 + r*ph}mm;`;
+    const withStyle = /^\s*<section class="page[^"]*" style="/;
+    h += withStyle.test(html) ? html.replace(/^(\s*<section class="page[^"]*" style=")/, `$1${pos}`) : html.replace('<section class="page', `<section style="${pos}" class="page`);
   });
   if (st.crop) {
     const g = 2, L = 5, t = .1, x1 = o.x0 + o.cols*pw, y1 = o.y0 + o.rows*ph;
