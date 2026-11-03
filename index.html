@@ -172,9 +172,16 @@ const DEFAULTS = {
   holidays:true, extraRed:'',
   format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'orig', orient:'auto', safe:5, duplex:'single', crop:true, w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
 };
-const KEY = 'monthly-insert-editor-v7';
+const KEY = 'monthly-insert-editor-v8';
 let st = {...DEFAULTS};
-try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) st = {...DEFAULTS, ...s}; } catch(e) {}
+try {
+  let s = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (!s) { // 예전 버전 설정은 가져오되, 기본값이 바뀐 출력 용지는 새 기본값(속지 크기)으로
+    const old = JSON.parse(localStorage.getItem('monthly-insert-editor-v7') || 'null');
+    if (old) { delete old.sheet; s = old; }
+  }
+  if (s) st = {...DEFAULTS, ...s};
+} catch(e) {}
 if (st.format === 'year') { st.format = 'insert'; st.yearFront = true; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
 
