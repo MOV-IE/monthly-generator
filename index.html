@@ -68,7 +68,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   <p class="sub">값을 바꾸면 오른쪽 미리보기가 바로 바뀌어요. 다 되면 아래 <b>PDF로 저장</b>을 누르세요.</p>
 
   <fieldset><legend>기본</legend>
-    <div class="row"><label>형태</label><div class="seg" data-k="format"><button data-v="insert">속지 (2면)</button><button data-v="wall">A4 큰 달력</button></div></div>
+    <div class="row"><label>형태</label><div class="seg" data-k="format"><button data-v="insert">속지 2면</button><button data-v="wall">큰 달력</button><button data-v="year">연간</button></div></div>
     <div class="row"><label>종류</label><div class="seg" data-k="mode"><button data-v="dated">날짜형</button><button data-v="blank">만년형</button></div></div>
     <div class="row"><label>연도</label><input type="number" data-k="year" min="2000" max="2100"></div>
     <div class="row"><label>시작 월</label><input type="number" data-k="from" min="1" max="12"></div>
@@ -113,6 +113,14 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
     <label style="color:#444">직접 추가할 빨간날</label>
     <textarea data-k="extraRed" placeholder="2027-04-12&#10;2027-11-20"></textarea>
     <p class="hint">한 줄에 하나씩 YYYY-MM-DD 형식으로 적어요. 공휴일은 한국천문연구원 자료로 매달 자동 갱신돼요.<span id="holInfo"></span></p>
+  </fieldset>
+
+  <fieldset id="fsYear"><legend>연간 달력</legend>
+    <div class="row"><label>크기</label><div class="seg" data-k="yearSize"><button data-v="insert">속지 크기</button><button data-v="a4">A4</button></div></div>
+    <div class="row"><label>월 이름</label><div class="seg" data-k="yearMonth"><button data-v="full">January</button><button data-v="Jan">Jan</button><button data-v="jan">jan</button><button data-v="num">1</button></div></div>
+    <div class="row"><label>글자 굵기</label><div class="seg" data-k="yearWeight"><button data-v="400">보통</button><button data-v="500">중간</button><button data-v="600">굵게</button></div></div>
+    <div class="row"><label>글자 배율</label><input type="number" data-k="yearScale" step=".1" min=".5"></div>
+    <p class="hint">연도, 시작 요일, 빨간날, 폰트, 색 설정을 같이 써요. 속지 크기면 아래 출력 용지 설정으로 A4에 배치할 수도 있어요.</p>
   </fieldset>
 
   <fieldset id="fsWall"><legend>큰 달력</legend>
@@ -161,9 +169,9 @@ const DEFAULTS = {
   font:"Futura, 'Futura PT', Jost", customFont:'', fsMonth:22, fsDay:9, fsDate:8, dateAlign:'center',
   lineColor:'#5b4636', lineW:.15, ink:'#2b2b2b', red:'#c8463a', yearColor:'#888888', satColor:false, sat:'#3a62a8',
   holidays:true, extraRed:'',
-  format:'insert', wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'a4', orient:'auto', safe:5, duplex:'single', crop:true, w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
+  format:'insert', yearSize:'insert', yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'a4', orient:'auto', safe:5, duplex:'single', crop:true, w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
 };
-const KEY = 'monthly-insert-editor-v6';
+const KEY = 'monthly-insert-editor-v7';
 let st = {...DEFAULTS};
 try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) st = {...DEFAULTS, ...s}; } catch(e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
@@ -200,6 +208,12 @@ function css() {
 .mon{grid-column:1;grid-row:1 / -1;padding-top:.5mm;text-align:center}
 .mon .blank{margin:0 auto}
 .mon .m,.mon .ab,.wm .m,.wm .ab{font-style:${st.monthItalic?'italic':'normal'}}
+.yearly .yt{position:absolute;left:0;right:0;text-align:center;letter-spacing:.08em;line-height:1}
+.yearly .yw{position:absolute;display:grid;align-content:space-between}
+.yearly .ym{align-self:start}
+.yearly .yn{text-align:center;margin-bottom:.9em;line-height:1}
+.yearly .yg{display:grid;grid-template-columns:repeat(7,1fr);align-items:center;text-align:center;line-height:1}
+.yearly .yd{opacity:.85;font-size:.85em}
 .wall .dn{font-size:${st.fsDay*st.wallScale}pt}
 .wall .c{font-size:${st.fsDate*st.wallScale}pt;padding-top:2.4mm}
 .whd{position:absolute;display:flex;align-items:flex-end;justify-content:space-between}
@@ -301,6 +315,41 @@ function placeSheet(slots, label, o, mirror) {
   return `<div class="sheetwrap"><div class="sheetlbl">${label}</div><div class="sheet" style="width:${o.W - 0.2}mm;height:${o.H - 0.2}mm">${h}</div></div>`;
 }
 
+const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function yearPage(y, W, H) {
+  const ins = st.format === 'year' && st.yearSize === 'insert';
+  const L = ins ? +st.mIn : 14, R = ins ? +st.mOut : 14, T = ins ? +st.mTop + 4 : 18, B = ins ? +st.mBot : 14;
+  const cols = W > H * 0.9 ? 4 : 3, rows = 12 / cols;
+  const gx = (W - L - R) * 0.06;
+  const mw = (W - L - R - gx * (cols - 1)) / cols;
+  const sc = +st.yearScale || 1;
+  const u = Math.min(mw / 7, (H - T - B) / (rows * 8.6 + (rows - 1) * 1.4 + 3.2)) * sc;   // 한 칸 크기(mm)
+  const ws = Number(st.weekStart);
+  const order = Array.from({length:7}, (_, i) => (i + ws) % 7);
+  const reds = redSet();
+  const fs = v => `${(v * u).toFixed(2)}mm`;
+  let months = '';
+  for (let m = 1; m <= 12; m++) {
+    const weeks = weeksOf(y, m, ws);
+    const nm = st.yearMonth === 'full' ? MONTH_FULL[m-1] : st.yearMonth === 'Jan' ? MONTH_FULL[m-1].slice(0,3) : st.yearMonth === 'jan' ? MONTHS[m-1].toLowerCase() : String(m);
+    let g = '';
+    order.forEach(dow => {
+      const ch = DAYS[dow][0];
+      g += `<div class="yd${dow === 0 ? ' red' : (dow === 6 && st.satColor ? ' sat' : '')}">${st.dayCase === 'upper' ? ch : ch.toLowerCase()}</div>`;
+    });
+    weeks.forEach(w => w.forEach((d, c) => {
+      const dow = order[c];
+      let cls = 'yc';
+      if (d) { const iso = `${y}-${pad(m)}-${pad(d)}`; if (dow === 0 || reds.has(iso)) cls += ' red'; else if (dow === 6 && st.satColor) cls += ' sat'; }
+      g += `<div class="${cls}">${d || ''}</div>`;
+    }));
+    months += `<div class="ym"><div class="yn" style="font-size:${fs(0.62)}">${nm}</div><div class="yg" style="grid-auto-rows:${fs(1.05)};font-size:${fs(0.5)}">${g}</div></div>`;
+  }
+  return `<section class="page yearly" style="width:${W}mm;height:${H}mm;font-weight:${st.yearWeight}">
+    <div class="yt" style="top:${T}mm;font-size:${fs(1.0)}">${y}</div>
+    <div class="yw" style="left:${L}mm;right:${R}mm;top:${T + u*3.2}mm;bottom:${B}mm;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);column-gap:${gx}mm">${months}</div></section>`;
+}
+
 function wallPage(y, m, W, H) {
   const k = +st.wallScale || 1, M = +st.wallM;
   const ws = Number(st.weekStart);
@@ -339,8 +388,32 @@ function render() {
     const a = Math.max(1, Math.min(12, +st.from)), b = Math.max(a, Math.min(12, +st.to));
     for (let m = a; m <= b; m++) months.push([+st.year, m]);
   }
-  ['fsSheet','fsSize'].forEach(id => document.getElementById(id).style.display = st.format === 'wall' ? 'none' : '');
+  const yIns = st.format === 'year' && st.yearSize === 'insert';
+  document.getElementById('fsSheet').style.display = (st.format === 'insert' || yIns) ? '' : 'none';
+  document.getElementById('fsSize').style.display = (st.format === 'insert' || yIns) ? '' : 'none';
   document.getElementById('fsWall').style.display = st.format === 'wall' ? '' : 'none';
+  document.getElementById('fsYear').style.display = st.format === 'year' ? '' : 'none';
+  if (st.format === 'year') {
+    const W = yIns ? +st.w : 210, H = yIns ? +st.h : 297;
+    const yp = yearPage(+st.year, W, H);
+    let html, hint = '';
+    if (!yIns || st.sheet === 'orig') {
+      html = `<div class="spread">${yp}</div>`;
+      document.getElementById('dyn').textContent += `\n@page{size:${W}mm ${H}mm;margin:0}` + (yIns ? '' : `\n#pages{zoom:${st.zoom*0.5}}`);
+      hint = '속지 크기 그대로 한 장 저장해요.';
+    } else {
+      const o = layout();
+      html = placeSheet([yp], '1장', o, false);
+      document.getElementById('dyn').textContent += `\n@page{size:${o.W}mm ${o.H}mm;margin:0}`;
+      hint = `${st.sheet.toUpperCase()} ${o.land ? '가로' : '세로'}에 연간 달력 1쪽을 재단선과 함께 놓아요.`;
+    }
+    document.getElementById('pages').innerHTML = html;
+    document.getElementById('sheetHint').innerHTML = hint;
+    document.getElementById('customFontRow').style.display = st.font === 'custom' ? '' : 'none';
+    document.getElementById('satRow').style.display = st.satColor ? '' : 'none';
+    ['dupRow','cropRow','orientRow','safeRow'].forEach(id => document.getElementById(id).style.display = st.sheet === 'orig' ? 'none' : '');
+    save(); return;
+  }
   if (st.format === 'wall') {
     const [a, b] = PAPERS[st.wallPaper];
     const W = st.wallOrient === 'landscape' ? b : a, H = st.wallOrient === 'landscape' ? a : b;
