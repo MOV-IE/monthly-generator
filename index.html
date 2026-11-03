@@ -68,7 +68,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   <p class="sub">값을 바꾸면 오른쪽 미리보기가 바로 바뀌어요. 다 되면 아래 <b>PDF로 저장</b>을 누르세요.</p>
 
   <fieldset><legend>기본</legend>
-    <div class="row"><label>형태</label><div class="seg" data-k="format"><button data-v="insert">속지 2면</button><button data-v="wall">큰 달력</button><button data-v="year">연간</button></div></div>
+    <div class="row"><label>형태</label><div class="seg" data-k="format"><button data-v="insert">속지 2면</button><button data-v="wall">큰 달력</button></div></div>
     <div class="row" id="yearFrontRow"><label>맨 앞에 연간 달력</label><input type="checkbox" data-k="yearFront"></div>
     <div class="row"><label>종류</label><div class="seg" data-k="mode"><button data-v="dated">날짜형</button><button data-v="blank">만년형</button></div></div>
     <div class="row"><label>연도</label><input type="number" data-k="year" min="2000" max="2100"></div>
@@ -175,6 +175,7 @@ const DEFAULTS = {
 const KEY = 'monthly-insert-editor-v7';
 let st = {...DEFAULTS};
 try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) st = {...DEFAULTS, ...s}; } catch(e) {}
+if (st.format === 'year') { st.format = 'insert'; st.yearFront = true; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
 
 const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
