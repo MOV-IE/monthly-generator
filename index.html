@@ -239,7 +239,7 @@ function css() {
 .yb{position:absolute;bottom:${Math.max(1,st.mBot-4.5)}mm;font-size:5.5pt;letter-spacing:.3pt;color:${st.yearColor}}
 .R .yb{right:${st.mOut}mm}
 .mon .y{font-size:6pt;letter-spacing:2pt;padding-left:2pt;color:${st.yearColor};margin-top:1.5mm}
-.mlist{display:grid;grid-template-columns:repeat(3,auto);justify-content:center;column-gap:1.6mm;row-gap:2.6mm;font-size:${Math.max(5,st.fsDay*.72)}pt;line-height:1;padding-top:${+st.dnH + 1.1}mm}
+.mlist{display:grid;grid-template-columns:repeat(3,auto);justify-content:center;column-gap:1.6mm;row-gap:2.6mm;font-size:${Math.max(5,st.fsDay*.72)}pt;line-height:1;padding-top:${+st.dnH + 1.1}mm;font-weight:300;font-family:${/futura/i.test(fontStack()) ? "'Futura PT', Jost, sans-serif" : fontStack()}} /* 맥 기본 Futura는 Medium이 가장 얇아서, 얇은 굵기가 있는 Jost로 */
 .mlist span{font-style:${st.monthItalic?'italic':'normal'}}
 .wm .mlist{grid-template-columns:repeat(12,auto);column-gap:3.5mm;font-size:${st.fsDay*st.wallScale*.8}pt;padding:0 0 1mm}
 @page{size:${st.w}mm ${st.h}mm;margin:0}
