@@ -171,14 +171,14 @@ const DEFAULTS = {
   font:"Futura, 'Futura PT', Jost", customFont:'', fsMonth:22, fsDay:9, fsDate:8, dateAlign:'center',
   lineColor:'#5b4636', lineW:.15, ink:'#2b2b2b', red:'#c8463a', yearColor:'#888888', satColor:false, sat:'#3a62a8',
   holidays:true, extraRed:'',
-  format:'insert', yearSize:'insert', yearFront:true, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'orig', orient:'auto', safe:5, duplex:'single',  w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
+  format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'orig', orient:'auto', safe:5, duplex:'single',  w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
 };
-const KEY = 'monthly-insert-editor-v9';
+const KEY = 'monthly-insert-editor-v10';
 let st = {...DEFAULTS};
 try {
   let s = JSON.parse(localStorage.getItem(KEY) || 'null');
   if (!s) { // 예전 버전 설정은 가져오되, 기본값이 바뀐 항목은 새 기본값으로
-    const old = JSON.parse(localStorage.getItem('monthly-insert-editor-v8') || localStorage.getItem('monthly-insert-editor-v7') || 'null');
+    const old = JSON.parse(localStorage.getItem('monthly-insert-editor-v9') || localStorage.getItem('monthly-insert-editor-v8') || localStorage.getItem('monthly-insert-editor-v7') || 'null');
     if (old) { ['sheet', 'style', 'yearPos', 'yearFront'].forEach(k => delete old[k]); s = old; }
   }
   if (s) st = {...DEFAULTS, ...s};
@@ -186,6 +186,7 @@ try {
 if (st.format === 'year') { st.format = 'insert'; st.yearFront = true; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
 
+const monthList = () => `<div class="mlist">${MONTHS.map(x => `<span>${x.toLowerCase()}</span>`).join('')}</div>`;
 const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 const pad = n => String(n).padStart(2,'0');
@@ -237,7 +238,9 @@ function css() {
 .yb{position:absolute;bottom:${Math.max(1,st.mBot-4.5)}mm;font-size:5.5pt;letter-spacing:.3pt;color:${st.yearColor}}
 .R .yb{right:${st.mOut}mm}
 .mon .y{font-size:6pt;letter-spacing:2pt;padding-left:2pt;color:${st.yearColor};margin-top:1.5mm}
-.mon .blank{width:13mm;height:8mm;color:${st.ink}}
+.mlist{display:grid;grid-template-columns:repeat(3,auto);justify-content:center;column-gap:1.6mm;row-gap:1.4mm;font-size:${Math.max(5,st.fsDay*.72)}pt;line-height:1;padding-top:1mm}
+.mlist span{font-style:${st.monthItalic?'italic':'normal'}}
+.wm .mlist{grid-template-columns:repeat(12,auto);column-gap:3.5mm;font-size:${st.fsDay*st.wallScale*.8}pt;padding:0 0 1mm}
 @page{size:${st.w}mm ${st.h}mm;margin:0}
 #pages{zoom:${st.sheet!=='orig' ? st.zoom*0.5 : st.zoom}}`;
   document.getElementById('dyn').textContent = L;
@@ -284,7 +287,7 @@ function spread(y, m) {
         const lab = st.style === '01' ? pad(m) : (st.style === '1' || st.style === '1jan') ? String(m) : MONTHS[m-1].toLowerCase();
         const ab = st.style === '1jan' ? `<div class="ab">${MONTHS[m-1].toLowerCase()}.</div>` : '';
         mon = `<div class="mon"><div class="m">${lab}</div>${ab}${st.yearPos === 'month' ? `<div class="y">${y}</div>` : ''}</div>`;
-      } else mon = `<div class="mon"><span class="blank"></span></div>`;
+      } else mon = `<div class="mon">${monthList()}</div>`; // 만년형: 해당 달에 동그라미 칠 수 있게 12달을 나열
     }
     const yb = (side === 'R' && y && st.yearPos === 'br') ? `<div class="yb">${y}</div>` : '';
     return `<section class="page ${side}"><div class="in" style="grid-template-rows:${st.dnH}mm repeat(${weeks.length},1fr)">${mon}${h}</div>${yb}</section>`;
@@ -381,7 +384,7 @@ function wallPage(y, m, W, H) {
     if (d) { const iso = `${y}-${pad(m)}-${pad(d)}`; if (dow === 0 || reds.has(iso)) cls.push('red'); else if (dow === 6 && st.satColor) cls.push('sat'); }
     g += `<div class="${cls.join(' ')}" style="grid-row:${r+2};grid-column:${c+1}">${d || ''}</div>`;
   }));
-  let mon = '<span class="blank"></span>';
+  let mon = monthList();
   if (y) {
     const lab = st.style === '01' ? pad(m) : (st.style === '1' || st.style === '1jan') ? String(m) : MONTHS[m-1].toLowerCase();
     const ab = st.style === '1jan' ? `<span class="ab">${MONTHS[m-1].toLowerCase()}.</span>` : '';
