@@ -97,7 +97,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
     <div class="row"><label>날짜 글자 크기 (pt)</label><input type="number" data-k="fsDate" step=".5"></div>
     <div class="row"><label>요일 표기</label><div class="seg" data-k="dayCase"><button data-v="lower">mon</button><button data-v="upper">MON</button></div></div>
     <div class="row"><label>월 기울임</label><input type="checkbox" data-k="monthItalic"></div>
-    <div class="row"><label>요일·날짜 기울임</label><input type="checkbox" data-k="italic"></div>
+    <div class="row"><label>날짜 기울임</label><input type="checkbox" data-k="italic"></div>
     <div class="row"><label>날짜 위치</label><div class="seg" data-k="dateAlign"><button data-v="left">왼쪽</button><button data-v="center">가운데</button><button data-v="right">오른쪽</button></div></div>
   </fieldset>
 
@@ -120,7 +120,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
 
   <fieldset id="fsYear"><legend>연간 달력</legend>
     <div class="row" id="yearSizeRow"><label>크기</label><div class="seg" data-k="yearSize"><button data-v="insert">속지 크기</button><button data-v="a4">A4</button></div></div>
-    <div class="row"><label>월 이름</label><div class="seg" data-k="yearMonth"><button data-v="full">January</button><button data-v="Jan">Jan</button><button data-v="jan">jan</button><button data-v="num">1</button></div></div>
+    <div class="row"><label>월 이름</label><div class="seg" data-k="yearMonth"><button data-v="full">January</button><button data-v="Jan">Jan</button><button data-v="jan">jan</button></div></div>
     <div class="row"><label>글자 굵기</label><div class="seg" data-k="yearWeight"><button data-v="400">보통</button><button data-v="500">중간</button><button data-v="600">굵게</button></div></div>
     <div class="row"><label>글자 배율</label><input type="number" data-k="yearScale" step=".1" min=".5"></div>
     <p class="hint">연도, 시작 요일, 빨간날, 폰트, 색 설정을 같이 써요. 속지 크기면 아래 출력 용지 설정으로 A4에 배치할 수도 있어요.</p>
@@ -167,22 +167,23 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
 <script>
 let HOL = {"2026-01-01": "1월1일", "2026-02-17": "설날", "2026-02-16": "설날", "2026-02-18": "설날", "2026-03-01": "삼일절", "2026-05-24": "부처님오신날", "2026-05-01": "노동절", "2026-05-05": "어린이날", "2026-06-06": "현충일", "2026-07-17": "제헌절", "2026-08-15": "광복절", "2026-10-03": "개천절", "2026-10-09": "한글날", "2026-09-25": "추석", "2026-09-24": "추석", "2026-09-26": "추석", "2026-12-25": "기독탄신일", "2026-06-03": "전국동시지방선거", "2026-03-02": "대체공휴일(삼일절)", "2026-05-25": "대체공휴일(부처님오신날)", "2026-08-17": "대체공휴일(광복절)", "2026-10-05": "대체공휴일(개천절)", "2027-01-01": "1월1일", "2027-02-07": "설날", "2027-02-06": "설날", "2027-02-08": "설날", "2027-03-01": "삼일절", "2027-05-13": "부처님오신날", "2027-05-01": "노동절", "2027-05-05": "어린이날", "2027-06-06": "현충일", "2027-07-17": "제헌절", "2027-08-15": "광복절", "2027-10-03": "개천절", "2027-10-09": "한글날", "2027-09-15": "추석", "2027-09-14": "추석", "2027-09-16": "추석", "2027-12-25": "기독탄신일", "2027-02-09": "대체공휴일(설날)", "2027-05-03": "대체공휴일(노동절)", "2027-07-19": "대체공휴일(제헌절)", "2027-08-16": "대체공휴일(광복절)", "2027-10-04": "대체공휴일(개천절)", "2027-10-11": "대체공휴일(한글날)", "2027-12-27": "대체공휴일(기독탄신일)", "2028-01-01": "1월1일", "2028-01-27": "설날", "2028-01-26": "설날", "2028-01-28": "설날", "2028-03-01": "삼일절", "2028-05-02": "부처님오신날", "2028-05-01": "노동절", "2028-05-05": "어린이날", "2028-06-06": "현충일", "2028-07-17": "제헌절", "2028-08-15": "광복절", "2028-10-03": "개천절; 추석", "2028-10-09": "한글날", "2028-10-02": "추석", "2028-10-04": "추석", "2028-12-25": "기독탄신일", "2028-04-12": "국회의원선거일", "2028-10-05": "대체공휴일(추석)", "2029-01-01": "신정연휴", "2029-02-13": "설날", "2029-02-12": "설날 전날", "2029-02-14": "설날 다음날", "2029-03-01": "삼일절", "2029-05-20": "부처님오신날", "2029-05-01": "노동절", "2029-05-05": "어린이날", "2029-06-06": "현충일", "2029-07-17": "제헌절", "2029-08-15": "광복절", "2029-10-03": "개천절", "2029-10-09": "한글날", "2029-09-22": "추석", "2029-09-21": "추석 전날", "2029-09-23": "추석 다음날", "2029-12-25": "기독탄신일", "2029-05-07": "어린이날 대체 휴일", "2029-05-21": "부처님오신날 대체 휴일", "2029-09-24": "추석 대체 휴일", "2030-01-01": "신정연휴", "2030-02-03": "설날", "2030-02-02": "설날 전날", "2030-02-04": "설날 다음날", "2030-03-01": "삼일절", "2030-05-09": "부처님오신날", "2030-05-01": "노동절", "2030-05-05": "어린이날", "2030-06-06": "현충일", "2030-07-17": "제헌절", "2030-08-15": "광복절", "2030-10-03": "개천절", "2030-10-09": "한글날", "2030-09-12": "추석", "2030-09-11": "추석 전날", "2030-09-13": "추석 다음날", "2030-12-25": "기독탄신일", "2030-04-03": "대통령 선거일", "2030-06-12": "지방선거일", "2030-02-05": "설날 대체 휴일", "2030-05-06": "어린이날 대체 휴일", "2025-01-01": "1월1일", "2025-01-27": "임시공휴일", "2025-01-28": "설날", "2025-01-29": "설날", "2025-01-30": "설날", "2025-03-01": "삼일절", "2025-03-03": "대체공휴일", "2025-05-05": "어린이날; 부처님오신날", "2025-05-06": "대체공휴일", "2025-06-03": "임시공휴일(제21대 대통령 선거)", "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-03": "개천절", "2025-10-05": "추석", "2025-10-06": "추석", "2025-10-07": "추석", "2025-10-08": "대체공휴일", "2025-10-09": "한글날", "2025-12-25": "기독탄신일"};
 const DEFAULTS = {
-  mode:'dated', year:2027, from:1, to:12, style:'1', yearPos:'month', rows:'6', weekStart:'0', dayCase:'lower', italic:true, monthItalic:false,
+  mode:'dated', year:2027, from:1, to:12, style:'1', yearPos:'month', rows:'6', weekStart:'0', dayCase:'lower', italic:false, monthItalic:false,
   font:"Futura, 'Futura PT', Jost", customFont:'', fsMonth:22, fsDay:9, fsDate:8, dateAlign:'center',
   lineColor:'#5b4636', lineW:.15, ink:'#2b2b2b', red:'#c8463a', yearColor:'#888888', satColor:false, sat:'#3a62a8',
   holidays:true, extraRed:'',
   format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'orig', orient:'auto', safe:5, duplex:'single',  w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
 };
-const KEY = 'monthly-insert-editor-v10';
+const KEY = 'monthly-insert-editor-v11';
 let st = {...DEFAULTS};
 try {
   let s = JSON.parse(localStorage.getItem(KEY) || 'null');
   if (!s) { // 예전 버전 설정은 가져오되, 기본값이 바뀐 항목은 새 기본값으로
-    const old = JSON.parse(localStorage.getItem('monthly-insert-editor-v9') || localStorage.getItem('monthly-insert-editor-v8') || localStorage.getItem('monthly-insert-editor-v7') || 'null');
-    if (old) { ['sheet', 'style', 'yearPos', 'yearFront'].forEach(k => delete old[k]); s = old; }
+    const old = JSON.parse(localStorage.getItem('monthly-insert-editor-v10') || localStorage.getItem('monthly-insert-editor-v9') || localStorage.getItem('monthly-insert-editor-v8') || localStorage.getItem('monthly-insert-editor-v7') || 'null');
+    if (old) { ['sheet', 'style', 'yearPos', 'yearFront', 'italic'].forEach(k => delete old[k]); s = old; }
   }
   if (s) st = {...DEFAULTS, ...s};
 } catch(e) {}
+if (st.yearMonth === 'num') st.yearMonth = 'full';
 if (st.format === 'year') { st.format = 'insert'; st.yearFront = true; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
 
@@ -211,7 +212,7 @@ function css() {
   const L = `.page{width:${st.w}mm;height:${st.h}mm;font-family:${fontStack()};color:${st.ink}}
 .in{top:${st.mTop}mm;bottom:${st.mBot}mm;grid-template-columns:repeat(4,1fr)}
 .L .in{left:${st.mOut}mm;right:${st.mIn}mm} .R .in{left:${st.mIn}mm;right:${st.mOut}mm}
-.dn{font-size:${st.fsDay}pt;letter-spacing:${st.dayCase==='upper'?st.fsDay*.27:st.fsDay*.08}pt;padding-left:${st.dayCase==='upper'?st.fsDay*.27:0}pt;font-style:${st.italic?'italic':'normal'};font-weight:${st.dayCase==='upper'?500:400}}
+.dn{font-size:${st.fsDay}pt;letter-spacing:${st.dayCase==='upper'?st.fsDay*.27:st.fsDay*.08}pt;padding-left:${st.dayCase==='upper'?st.fsDay*.27:0}pt;font-weight:${st.dayCase==='upper'?500:400}}
 .c{font-style:${st.italic?'italic':'normal'};font-size:${st.fsDate}pt;padding-top:1.6mm;text-align:${st.dateAlign};padding-left:${st.dateAlign==='left'?'1.4mm':'0'};padding-right:${st.dateAlign==='right'?'1.4mm':'0'}}
 .c.top{border-top:${st.lineW}mm solid ${st.lineColor}}
 .c.vl{border-left:${st.lineW}mm solid ${st.lineColor}}
@@ -238,7 +239,7 @@ function css() {
 .yb{position:absolute;bottom:${Math.max(1,st.mBot-4.5)}mm;font-size:5.5pt;letter-spacing:.3pt;color:${st.yearColor}}
 .R .yb{right:${st.mOut}mm}
 .mon .y{font-size:6pt;letter-spacing:2pt;padding-left:2pt;color:${st.yearColor};margin-top:1.5mm}
-.mlist{display:grid;grid-template-columns:repeat(3,auto);justify-content:center;column-gap:1.6mm;row-gap:1.4mm;font-size:${Math.max(5,st.fsDay*.72)}pt;line-height:1;padding-top:1mm}
+.mlist{display:grid;grid-template-columns:repeat(3,auto);justify-content:center;column-gap:1.6mm;row-gap:1.4mm;font-size:${Math.max(5,st.fsDay*.72)}pt;line-height:1;padding-top:${+st.dnH + 1.1}mm}
 .mlist span{font-style:${st.monthItalic?'italic':'normal'}}
 .wm .mlist{grid-template-columns:repeat(12,auto);column-gap:3.5mm;font-size:${st.fsDay*st.wallScale*.8}pt;padding:0 0 1mm}
 @page{size:${st.w}mm ${st.h}mm;margin:0}
