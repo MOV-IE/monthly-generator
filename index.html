@@ -35,10 +35,9 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
 .sheet{overflow:hidden;background:#fff;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.12)}
 .sheet .page{position:absolute}
 .sheet .page.L{box-shadow:none}
-.cm{position:absolute;background:#000}
-.cg{position:absolute;z-index:2;pointer-events:none}
-.cg.v{border-left:.1mm dashed #9a9a9a}
-.cg.h{border-top:.1mm dashed #9a9a9a}
+.cm{position:absolute}
+.cm.v{border-left:.25pt solid #000}
+.cm.h{border-top:.25pt solid #000}
 .spread{display:flex;margin-right:22px;box-shadow:0 1px 6px rgba(0,0,0,.12)}
 .lbl{display:none}
 /* page */
@@ -150,8 +149,6 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
     <div class="row" id="orientRow"><label>방향</label><div class="seg" data-k="orient"><button data-v="auto">자동</button><button data-v="portrait">세로</button><button data-v="landscape">가로</button></div></div>
     <div class="row" id="safeRow"><label>프린터 안전 여백 (mm)</label><input type="number" data-k="safe" step="1" min="0"></div>
     <div class="row" id="dupRow"><label>배치</label><div class="seg" data-k="duplex"><button data-v="single">단면</button><button data-v="duplex">양면</button></div></div>
-    <div class="row" id="cropRow"><label>재단선 (모서리 표시)</label><input type="checkbox" data-k="crop"></div>
-    <div class="row" id="guideRow"><label>재단 안내선 (세로·가로 점선)</label><input type="checkbox" data-k="cropGuide"></div>
     <p class="hint" id="sheetHint"></p>
     <p class="hint">안전 여백은 프린터가 못 찍는 가장자리예요. 보통 3~5mm예요.</p>
   </fieldset>
@@ -174,7 +171,7 @@ const DEFAULTS = {
   font:"Futura, 'Futura PT', Jost", customFont:'', fsMonth:22, fsDay:9, fsDate:8, dateAlign:'center',
   lineColor:'#5b4636', lineW:.15, ink:'#2b2b2b', red:'#c8463a', yearColor:'#888888', satColor:false, sat:'#3a62a8',
   holidays:true, extraRed:'',
-  format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'orig', orient:'auto', safe:5, duplex:'single', crop:true, cropGuide:true, w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
+  format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'orig', orient:'auto', safe:5, duplex:'single',  w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
 };
 const KEY = 'monthly-insert-editor-v8';
 let st = {...DEFAULTS};
@@ -320,17 +317,13 @@ function placeSheet(slots, label, o, mirror) {
     const withStyle = /^\s*<section class="page[^"]*" style="/;
     h += withStyle.test(html) ? html.replace(/^(\s*<section class="page[^"]*" style=")/, `$1${pos}`) : html.replace('<section class="page', `<section style="${pos}" class="page`);
   });
-  if (st.crop) {
-    const g = 2, L = 5, t = .1, x1 = o.x0 + o.cols*pw, y1 = o.y0 + o.rows*ph;
+  // 재단선(항상 표시): 쪽 경계마다 세로선은 위·아래, 가로선은 왼쪽·오른쪽 바깥에 표시
+  {
+    const g = 2, L = 5, x1 = o.x0 + o.cols*pw, y1 = o.y0 + o.rows*ph;
     for (let c = 0; c <= o.cols; c++) { const x = o.x0 + c*pw;
-      h += `<div class="cm" style="left:${x - t/2}mm;top:${o.y0 - g - L}mm;width:${t}mm;height:${L}mm"></div><div class="cm" style="left:${x - t/2}mm;top:${y1 + g}mm;width:${t}mm;height:${L}mm"></div>`; }
+      h += `<div class="cm v" style="left:${x}mm;top:${o.y0 - g - L}mm;height:${L}mm"></div><div class="cm v" style="left:${x}mm;top:${y1 + g}mm;height:${L}mm"></div>`; }
     for (let r = 0; r <= o.rows; r++) { const y = o.y0 + r*ph;
-      h += `<div class="cm" style="left:${o.x0 - g - L}mm;top:${y - t/2}mm;width:${L}mm;height:${t}mm"></div><div class="cm" style="left:${x1 + g}mm;top:${y - t/2}mm;width:${L}mm;height:${t}mm"></div>`; }
-  }
-  if (st.cropGuide) {
-    const x1 = o.x0 + o.cols*pw, y1 = o.y0 + o.rows*ph;
-    for (let c = 0; c <= o.cols; c++) h += `<div class="cg v" style="left:${o.x0 + c*pw - .05}mm;top:${o.y0}mm;height:${o.rows*ph}mm"></div>`;
-    for (let r = 0; r <= o.rows; r++) h += `<div class="cg h" style="top:${o.y0 + r*ph - .05}mm;left:${o.x0}mm;width:${o.cols*pw}mm"></div>`;
+      h += `<div class="cm h" style="left:${o.x0 - g - L}mm;top:${y}mm;width:${L}mm"></div><div class="cm h" style="left:${x1 + g}mm;top:${y}mm;width:${L}mm"></div>`; }
   }
   return `<div class="sheetwrap"><div class="sheetlbl">${label}</div><div class="sheet" style="width:${o.W - 0.2}mm;height:${o.H - 0.2}mm">${h}</div></div>`;
 }
@@ -433,7 +426,7 @@ function render() {
     document.getElementById('sheetHint').innerHTML = hint;
     document.getElementById('customFontRow').style.display = st.font === 'custom' ? '' : 'none';
     document.getElementById('satRow').style.display = st.satColor ? '' : 'none';
-    ['dupRow','cropRow','guideRow','orientRow','safeRow'].forEach(id => document.getElementById(id).style.display = st.sheet === 'orig' ? 'none' : '');
+    ['dupRow','orientRow','safeRow'].forEach(id => document.getElementById(id).style.display = st.sheet === 'orig' ? 'none' : '');
     save(); return;
   }
   if (st.format === 'wall') {
@@ -479,7 +472,7 @@ function render() {
   document.getElementById('pages').innerHTML = html;
   document.getElementById('customFontRow').style.display = st.font === 'custom' ? '' : 'none';
   document.getElementById('satRow').style.display = st.satColor ? '' : 'none';
-  ['dupRow','cropRow','guideRow','orientRow','safeRow'].forEach(id => document.getElementById(id).style.display = st.sheet === 'orig' ? 'none' : '');
+  ['dupRow','orientRow','safeRow'].forEach(id => document.getElementById(id).style.display = st.sheet === 'orig' ? 'none' : '');
   save();
 }
 

@@ -67,7 +67,7 @@ The default font is Futura. If Futura is installed (it comes with every Mac), yo
 - Adjust room for ring holes with the **inner margin (안쪽 여백)**. The default is 6mm.
 
 **Cutting and paper**
-- With crop marks (재단선) on, cut lines are marked just outside each page corner. A craft knife and a ruler give clean edges.
+- A4 and A3 layouts always show vertical and horizontal crop marks just outside every page boundary. A craft knife and a ruler give clean edges.
 - Most printers can't print the outer 3–5mm of the sheet. Put that value in **printer safe margin (프린터 안전 여백)** so nothing gets cut off.
 - Fitting two A5 pages on one A4 sheet needs a safe margin of 0. Only do this if your printer can print borderless. Otherwise choose A3, or print straight onto A5 paper.
 - For fountain pens, paper of 100gsm or more shows less through the back.
