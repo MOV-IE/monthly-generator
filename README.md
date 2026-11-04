@@ -1,6 +1,6 @@
 # Monthly Generator
 
-**한국어** · [English](README.en.md)
+**한국어** | [English](README.en.md)
 
 다이어리 먼슬리 속지와 A4 큰 달력을 만들어 PDF로 저장하는 편집 도구예요. 설치 없이 브라우저에서 바로 써요.
 

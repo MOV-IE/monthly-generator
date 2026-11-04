@@ -1,6 +1,6 @@
 # Monthly Generator
 
-[한국어](README.md) · **English**
+[한국어](README.md) | **English**
 
 A browser tool for making printable monthly diary inserts and full-page calendars, then saving them as PDF. Nothing to install.
 
