@@ -6,6 +6,8 @@
 
 **바로 쓰기:** https://mov-ie.github.io/monthly-generator/
 
+![미리보기](preview.png)
+
 ## 할 수 있는 것
 
 - **속지 (2면 1달):** 왼쪽 면에 월 표시 열과 3일, 오른쪽 면에 4일. 기본 크기는 86×171mm예요.

@@ -6,6 +6,8 @@ A browser tool for making printable monthly diary inserts and full-page calendar
 
 **Open it:** https://mov-ie.github.io/monthly-generator/
 
+![Preview](preview.png)
+
 The interface is in Korean. Korean labels are shown in brackets below so you can find them on the page.
 
 ## What it does
