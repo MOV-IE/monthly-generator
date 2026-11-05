@@ -17,7 +17,7 @@ The interface is in Korean. Korean labels are shown in brackets below so you can
 - **Big calendar (큰 달력):** one month per sheet with all 7 days in a row. Landscape or portrait, A4 or A3.
 - **Dated or undated (날짜형 / 만년형):** with year and dates printed, or blank to fill in by hand.
 - **Red days (빨간날):** Sundays and Korean public holidays, including substitute holidays, updated automatically every month. You can add your own dates too.
-- **Style:** month label (1 / 01 / jan / 1 jan.), first day of the week, font, text sizes, italics, line colour and weight, text colour.
+- **Style:** month label (1 / 01 / jan / 1 jan.), first day of the week, text sizes, italics, line colour and weight, text colour.
 - **Print layout:** save at insert size, or lay several pages onto A4 or A3 with crop marks, one-sided or two-sided.
 
 ## Automatic holiday updates
@@ -37,17 +37,13 @@ Red days come from the **KASI special-day API** (한국천문연구원 특일 �
 
 1. Open the page.
 2. In the left panel, choose the **format (형태)**: two-page inserts (속지 2면) or big calendar (큰 달력).
-3. Set the year (연도), start month (시작 월) and end month (끝 월), then adjust the month label, font, colours and margins. The preview on the right updates as you go.
+3. Set the year (연도), start month (시작 월) and end month (끝 월), then adjust the month label, colours and margins. The preview on the right updates as you go.
 4. For inserts, choose the **paper (출력 용지)**:
    - **Insert size (속지 크기):** saves each page at its real size, such as 86×171mm. Use this for a print shop or paper already cut to size.
    - **A4 / A3:** lays several pages on each sheet. With orientation on **auto (자동)** it picks whichever direction fits the most pages. 86×171mm fits 3 pages on landscape A4.
 5. Press **Save as PDF / Print (PDF로 저장 / 인쇄)** at the bottom, then choose **Save as PDF** in the print dialog.
 
 Your settings are saved in the browser and come back next time. **Reset (처음 설정으로 되돌리기)** restores the defaults.
-
-### Fonts
-
-Open Sans and Jost are built into the page, so they look the same on every computer. Both are free fonts under the SIL Open Font License ([OFL.txt](OFL.txt)). To use another font, choose **Font → custom (직접 입력)** and type the name of a font installed on your computer.
 
 ## Printing tips
 
