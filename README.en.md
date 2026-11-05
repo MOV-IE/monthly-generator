@@ -47,7 +47,7 @@ Your settings are saved in the browser and come back next time. **Reset (처음 
 
 ### Fonts
 
-The default font is Open Sans. It's built into the page, so it looks the same on every computer. Jost is also available. Both are free fonts under the SIL Open Font License ([OFL.txt](OFL.txt)). To use another font, choose **Font → custom (직접 입력)** and type the name of a font installed on your computer.
+Open Sans and Jost are built into the page, so they look the same on every computer. Both are free fonts under the SIL Open Font License ([OFL.txt](OFL.txt)). To use another font, choose **Font → custom (직접 입력)** and type the name of a font installed on your computer.
 
 ## Printing tips
 
