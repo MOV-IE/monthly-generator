@@ -192,6 +192,14 @@ if (st.wallPaper === 'a3') st.wallPaper = 'a4';
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
 
 const monthList = () => `<div class="mlist">${MONTHS.map(x => `<span>${x.toLowerCase()}</span>`).join('')}</div>`;
+// 날짜 칸 선: 요일 줄 아래부터, 첫 칸(from)보다 오른쪽에만 그려요
+const gridSvg = (cols, from, rows, top) => {
+  const p = v => (v * 100).toFixed(4) + '%';
+  let s = '';
+  for (let r = 1; r < rows; r++) s += `<line x1="${p(from / cols)}" y1="${p(r / rows)}" x2="100%" y2="${p(r / rows)}"/>`;
+  for (let k = from + 1; k < cols; k++) s += `<line x1="${p(k / cols)}" y1="0" x2="${p(k / cols)}" y2="100%"/>`;
+  return `<svg class="grid" style="top:${top}mm;height:calc(100% - ${top}mm)">${s}</svg>`;
+};
 const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 const pad = n => String(n).padStart(2,'0');
@@ -218,10 +226,8 @@ function css() {
 .L .in{left:${st.mOut}mm;right:${st.mIn}mm} .R .in{left:${st.mIn}mm;right:${st.mOut}mm}
 .dn{font-size:${st.fsDay}pt;letter-spacing:${st.dayCase==='upper'?st.fsDay*.27:st.fsDay*.08}pt;padding-left:${st.dayCase==='upper'?st.fsDay*.27:0}pt;font-weight:${st.dayCase==='upper'?500:400}}
 .c{font-style:${st.italic?'italic':'normal'};font-size:${st.fsDate}pt;padding-top:1.6mm;text-align:${st.dateAlign};padding-left:${st.dateAlign==='left'?'1.4mm':'0'};padding-right:${st.dateAlign==='right'?'1.4mm':'0'}}
-/* 선은 테두리 대신 안쪽 그림자로 그려요. 테두리는 인쇄할 때 1px 단위로 반올림돼서 굵기를 바꿔도 출력물이 똑같았어요. */
-.c.top{--t:inset 0 ${st.lineW}mm 0 0 ${st.lineColor}}
-.c.vl{--l:inset ${st.lineW}mm 0 0 0 ${st.lineColor}}
-.c.top,.c.vl{box-shadow:var(--t,0 0 #0000),var(--l,0 0 #0000)}
+/* 선은 SVG로 그려요. 테두리는 인쇄할 때 1px 단위로 반올림되고, 안쪽 그림자는 Safari에서 칸 반대쪽 끝에 가는 선이 새어 나와요. */
+.grid{position:absolute;left:0;width:100%;bottom:0;overflow:visible;pointer-events:none;stroke:${st.lineColor};stroke-width:${st.lineW}mm}
 .red{color:${st.red}} .sat{color:${st.sat}}
 .mon{grid-column:1;grid-row:1 / -1;padding-top:.5mm;text-align:center}
 .mon .blank{margin:0 auto}
@@ -322,7 +328,7 @@ function spread(y, m) {
     const yb = (side === 'R' && y && st.yearPos === 'br') ? `<div class="yb">${y}</div>` : '';
     // 링은 왼쪽 쪽의 오른쪽 끝, 오른쪽 쪽의 왼쪽 끝(안쪽)에 있어요
     const ring = st.showRing ? ringSvg(+st.h, Math.max(3, +st.mIn), side === 'R', false, `${side === 'L' ? 'right' : 'left'}:0;top:0`) : '';
-    return `<section class="page ${side}">${ring}<div class="in" style="grid-template-rows:${st.dnH}mm repeat(${weeks.length},1fr)">${mon}${h}</div>${yb}</section>`;
+    return `<section class="page ${side}">${ring}<div class="in" style="grid-template-rows:${st.dnH}mm repeat(${weeks.length},1fr)">${mon}${h}${gridSvg(4, offset, weeks.length, st.dnH)}</div>${yb}</section>`;
   };
   return [pageHtml('L', [0,1,2], 1), pageHtml('R', [3,4,5,6], 0)];
 }
@@ -425,7 +431,7 @@ function wallPage(y, m, W, H) {
   const yr = y && st.yearPos !== 'none' ? `<span class="wy">${y}</span>` : '';
   return `<section class="page wall" style="width:${W}mm;height:${H}mm">
     <div class="whd" style="left:${M}mm;right:${M}mm;top:${M}mm;--k:${k}">${'<div class="wm">' + mon + '</div>'}${yr}</div>
-    <div class="in" style="left:${M}mm;right:${M}mm;top:${M + 9 + st.fsMonth*k*0.353*0.8}mm;bottom:${M}mm;grid-template-columns:repeat(7,1fr);grid-template-rows:${st.dnH*k*0.9}mm repeat(${weeks.length},1fr);--k:${k}">${g}</div></section>`;
+    <div class="in" style="left:${M}mm;right:${M}mm;top:${M + 9 + st.fsMonth*k*0.353*0.8}mm;bottom:${M}mm;grid-template-columns:repeat(7,1fr);grid-template-rows:${st.dnH*k*0.9}mm repeat(${weeks.length},1fr);--k:${k}">${g}${gridSvg(7, 0, weeks.length, st.dnH*k*0.9)}</div></section>`;
 }
 
 function render() {
