@@ -35,9 +35,8 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
 .sheet{overflow:hidden;background:#fff;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.12)}
 .sheet .page{position:absolute}
 .sheet .page.L{box-shadow:none}
-.cm{position:absolute}
-.cm.v{border-left:.25pt solid #000}
-.cm.h{border-top:.25pt solid #000}
+.cm{position:absolute;overflow:visible;pointer-events:none}
+.ringsvg{position:absolute;pointer-events:none}
 .spread{display:flex;margin-right:22px;box-shadow:0 1px 6px rgba(0,0,0,.12)}
 .lbl{display:none}
 /* page */
@@ -51,6 +50,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
 @media print{
   html,body{background:#fff;display:block;min-height:0 !important;height:auto !important}
   #panel{display:none}
+  .ringsvg{display:none !important}
   #stage{padding:0;overflow:visible}
   #pages{display:block;zoom:1 !important;transform:none !important}
   .spread{display:block;margin:0;box-shadow:none}
@@ -145,7 +145,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   </fieldset>
 
   <fieldset id="fsSheet"><legend>출력 용지</legend>
-    <div class="row"><label>용지</label><div class="seg" data-k="sheet"><button data-v="orig">속지 크기</button><button data-v="a4">A4</button><button data-v="a3">A3</button></div></div>
+    <div class="row"><label>용지</label><div class="seg" data-k="sheet"><button data-v="orig">속지 크기</button><button data-v="a4">A4</button><button data-v="a5">A5</button></div></div>
     <div class="row" id="orientRow"><label>방향</label><div class="seg" data-k="orient"><button data-v="auto">자동</button><button data-v="portrait">세로</button><button data-v="landscape">가로</button></div></div>
     <div class="row" id="safeRow"><label>프린터 안전 여백 (mm)</label><input type="number" data-k="safe" step="1" min="0"></div>
     <div class="row" id="dupRow"><label>배치</label><div class="seg" data-k="duplex"><button data-v="single">단면</button><button data-v="duplex">양면</button></div></div>
@@ -154,6 +154,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   </fieldset>
 
   <fieldset><legend>미리보기</legend>
+    <div class="row"><label>링 위치 표시</label><input type="checkbox" data-k="showRing"></div>
     <div class="row"><label>확대</label><input type="range" data-k="zoom" min="1" max="4" step=".1" style="width:130px"></div>
   </fieldset>
 
@@ -171,7 +172,7 @@ const DEFAULTS = {
   font:"'Open Sans'", customFont:'', fsMonth:22, fsDay:9, fsDate:8, dateAlign:'center',
   lineColor:'#5b4636', lineW:.15, ink:'#2b2b2b', red:'#c8463a', yearColor:'#888888', satColor:false, sat:'#3a62a8',
   holidays:true, extraRed:'',
-  format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, sheet:'orig', orient:'auto', safe:5, duplex:'single',  w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
+  format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, showRing:true, sheet:'orig', orient:'auto', safe:5, duplex:'single',  w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
 };
 const KEY = 'monthly-insert-editor-v11';
 let st = {...DEFAULTS};
@@ -186,6 +187,7 @@ try {
 if (st.yearMonth === 'num') st.yearMonth = 'full';
 if (st.format === 'year') { st.format = 'insert'; st.yearFront = true; }
 if (st.fontVer !== 2) { if (st.font === "Futura, 'Futura PT', Jost" || st.font === 'Jost') st.font = "'Open Sans'"; st.fontVer = 2; } // 예전 기본 폰트로 저장된 설정은 Open Sans로
+if (st.sheet === 'a3') st.sheet = 'a4'; // 출력 용지에서 A3를 빼고 A5를 넣었어요
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
 
 const monthList = () => `<div class="mlist">${MONTHS.map(x => `<span>${x.toLowerCase()}</span>`).join('')}</div>`;
@@ -215,8 +217,10 @@ function css() {
 .L .in{left:${st.mOut}mm;right:${st.mIn}mm} .R .in{left:${st.mIn}mm;right:${st.mOut}mm}
 .dn{font-size:${st.fsDay}pt;letter-spacing:${st.dayCase==='upper'?st.fsDay*.27:st.fsDay*.08}pt;padding-left:${st.dayCase==='upper'?st.fsDay*.27:0}pt;font-weight:${st.dayCase==='upper'?500:400}}
 .c{font-style:${st.italic?'italic':'normal'};font-size:${st.fsDate}pt;padding-top:1.6mm;text-align:${st.dateAlign};padding-left:${st.dateAlign==='left'?'1.4mm':'0'};padding-right:${st.dateAlign==='right'?'1.4mm':'0'}}
-.c.top{border-top:${st.lineW}mm solid ${st.lineColor}}
-.c.vl{border-left:${st.lineW}mm solid ${st.lineColor}}
+/* 선은 테두리 대신 안쪽 그림자로 그려요. 테두리는 인쇄할 때 1px 단위로 반올림돼서 굵기를 바꿔도 출력물이 똑같았어요. */
+.c.top{--t:inset 0 ${st.lineW}mm 0 0 ${st.lineColor}}
+.c.vl{--l:inset ${st.lineW}mm 0 0 0 ${st.lineColor}}
+.c.top,.c.vl{box-shadow:var(--t,0 0 #0000),var(--l,0 0 #0000)}
 .red{color:${st.red}} .sat{color:${st.sat}}
 .mon{grid-column:1;grid-row:1 / -1;padding-top:.5mm;text-align:center}
 .mon .blank{margin:0 auto}
@@ -253,6 +257,29 @@ function redSet() {
   if (st.holidays) Object.keys(HOL).forEach(k => s.add(k));
   st.extraRed.split(/\s+/).filter(Boolean).forEach(k => s.add(k.trim()));
   return s;
+}
+
+// 링 부분 표시 (화면에서만, 인쇄되지 않아요): 연한 띠 + 띠 경계와 구멍 중심을 지나는 점선 + 점 + 구멍 테두리
+// 구멍 위치는 6공 바이블 규격 19-19-51-19-19mm
+const RING_HOLES = [-63.5, -44.5, -25.5, 25.5, 44.5, 63.5];
+function ringSvg(len, band, edgeFirst, horizontal, pos) {
+  const vi = edgeFirst ? band : 0, s = edgeFirst ? -1 : 1, vc = band / 2;   // vi: 속지 안쪽 경계, s: 안쪽 경계 → 종이 끝 방향
+  const W = horizontal ? len : band, H = horizontal ? band : len;
+  const ln = v => horizontal ? `M0 ${v}H${len}` : `M${v} 0V${len}`;
+  const pt = (u, v) => horizontal ? [u, v] : [v, u];
+  let dots = '';
+  for (let k = -Math.floor(len / 9.5); k <= Math.floor(len / 9.5); k++) {
+    const u = len / 2 + k * 4.75;
+    if (u < 1 || u > len - 1) continue;
+    [vi + s * band * .15, vi + s * band * .65].forEach(v => { const [x, y] = pt(u, v); dots += `<circle cx="${x}" cy="${y}" r=".17"/>`; });
+  }
+  const r = Math.min(5, band * .45) / 2;
+  const holes = RING_HOLES.map(d => { const [x, y] = pt(len / 2 + d, vc); return `<circle cx="${x}" cy="${y}" r="${r}"/>`; }).join('');
+  return `<svg class="ringsvg" viewBox="0 0 ${W} ${H}" style="width:${W}mm;height:${H}mm;${pos}">`
+    + `<rect width="${W}" height="${H}" fill="#f2f5f8"/>`
+    + `<path d="${ln(vi + s * .1)}${ln(vc)}" stroke="#b4bfcd" stroke-width=".18" stroke-dasharray="1.2 .9" fill="none"/>`
+    + `<g fill="#b4bfcd">${dots}</g>`
+    + `<g fill="none" stroke="#8d939a" stroke-width=".2">${holes}</g></svg>`;
 }
 
 function spread(y, m) {
@@ -292,12 +319,14 @@ function spread(y, m) {
       } else mon = `<div class="mon">${monthList()}</div>`; // 만년형: 해당 달에 동그라미 칠 수 있게 12달을 나열
     }
     const yb = (side === 'R' && y && st.yearPos === 'br') ? `<div class="yb">${y}</div>` : '';
-    return `<section class="page ${side}"><div class="in" style="grid-template-rows:${st.dnH}mm repeat(${weeks.length},1fr)">${mon}${h}</div>${yb}</section>`;
+    // 링은 왼쪽 쪽의 오른쪽 끝, 오른쪽 쪽의 왼쪽 끝(안쪽)에 있어요
+    const ring = st.showRing ? ringSvg(+st.h, Math.max(3, +st.mIn), side === 'R', false, `${side === 'L' ? 'right' : 'left'}:0;top:0`) : '';
+    return `<section class="page ${side}">${ring}<div class="in" style="grid-template-rows:${st.dnH}mm repeat(${weeks.length},1fr)">${mon}${h}</div>${yb}</section>`;
   };
   return [pageHtml('L', [0,1,2], 1), pageHtml('R', [3,4,5,6], 0)];
 }
 
-const PAPERS = { a4: [210, 297], a3: [297, 420] };
+const PAPERS = { a4: [210, 297], a5: [148, 210], a3: [297, 420] }; // a3는 큰 달력 전용
 
 function layout() {
   const [pw0, ph0] = PAPERS[st.sheet], pw = +st.w, ph = +st.h, m = +st.safe;
@@ -322,13 +351,13 @@ function placeSheet(slots, label, o, mirror) {
     const withStyle = /^\s*<section class="page[^"]*" style="/;
     h += withStyle.test(html) ? html.replace(/^(\s*<section class="page[^"]*" style=")/, `$1${pos}`) : html.replace('<section class="page', `<section style="${pos}" class="page`);
   });
-  // 재단선(항상 표시): 쪽 경계마다 세로선은 위·아래, 가로선은 왼쪽·오른쪽 바깥에 표시
   {
-    const g = 2, L = 5, x1 = o.x0 + o.cols*pw, y1 = o.y0 + o.rows*ph;
-    for (let c = 0; c <= o.cols; c++) { const x = o.x0 + c*pw;
-      h += `<div class="cm v" style="left:${x}mm;top:${o.y0 - g - L}mm;height:${L}mm"></div><div class="cm v" style="left:${x}mm;top:${y1 + g}mm;height:${L}mm"></div>`; }
-    for (let r = 0; r <= o.rows; r++) { const y = o.y0 + r*ph;
-      h += `<div class="cm h" style="left:${o.x0 - g - L}mm;top:${y}mm;width:${L}mm"></div><div class="cm h" style="left:${x1 + g}mm;top:${y}mm;width:${L}mm"></div>`; }
+    // 재단선은 SVG 선으로, 바깥 끝이 용지 끝에 닿게 그려요.
+    const g = 2, x1 = o.x0 + o.cols*pw, y1 = o.y0 + o.rows*ph;
+    let d = '';
+    for (let c = 0; c <= o.cols; c++) { const x = o.x0 + c*pw; d += `M${x} 0V${o.y0 - g}M${x} ${y1 + g}V${o.H}`; }
+    for (let r = 0; r <= o.rows; r++) { const y = o.y0 + r*ph; d += `M0 ${y}H${o.x0 - g}M${x1 + g} ${y}H${o.W}`; }
+    h += `<svg class="cm" viewBox="0 0 ${o.W} ${o.H}" style="left:0;top:0;width:${o.W}mm;height:${o.H}mm"><path d="${d}" stroke="#000" stroke-width=".1" fill="none"/></svg>`;
   }
   return `<div class="sheetwrap"><div class="sheetlbl">${label}</div><div class="sheet" style="width:${o.W - 0.2}mm;height:${o.H - 0.2}mm">${h}</div></div>`;
 }
