@@ -277,9 +277,9 @@ function ringSvg(len, band, edgeFirst, horizontal, pos) {
   const r = Math.min(5, band * .45) / 2;
   const holes = RING_HOLES.map(d => { const [x, y] = pt(len / 2 + d, vc); return `<circle cx="${x}" cy="${y}" r="${r}"/>`; }).join('');
   return `<svg class="ringsvg" viewBox="0 0 ${W} ${H}" style="width:${W}mm;height:${H}mm;${pos}">`
-    + `<rect width="${W}" height="${H}" fill="#f3ece2"/>`
-    + `<path d="${ln(vi + s * .1)}${ln(vc)}" stroke="#b09a86" stroke-width=".18" stroke-dasharray="1.2 .9" fill="none"/>`
-    + `<g fill="#b09a86">${dots}</g>`
+    + `<rect width="${W}" height="${H}" fill="#cbc4bc" fill-opacity=".55"/>`
+    + `<path d="${ln(vi + s * .1)}${ln(vc)}" stroke="#aca39a" stroke-width=".18" stroke-dasharray="1.2 .9" fill="none"/>`
+    + `<g fill="#aca39a">${dots}</g>`
     + `<g fill="none" stroke="#8d939a" stroke-width=".2">${holes}</g></svg>`;
 }
 
