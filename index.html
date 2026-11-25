@@ -127,7 +127,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   </fieldset>
 
   <fieldset id="fsWall"><legend>큰 달력</legend>
-    <div class="row"><label>용지</label><div class="seg" data-k="wallPaper"><button data-v="a4">A4</button><button data-v="a3">A3</button></div></div>
+    <div class="row"><label>용지</label><div class="seg" data-k="wallPaper"><button data-v="a4">A4</button><button data-v="a5">A5</button></div></div>
     <div class="row"><label>방향</label><div class="seg" data-k="wallOrient"><button data-v="landscape">가로</button><button data-v="portrait">세로</button></div></div>
     <div class="row"><label>여백 (mm)</label><input type="number" data-k="wallM" step="1" min="0"></div>
     <div class="row"><label>글자 배율</label><input type="number" data-k="wallScale" step=".1" min=".5"></div>
@@ -188,6 +188,7 @@ if (st.yearMonth === 'num') st.yearMonth = 'full';
 if (st.format === 'year') { st.format = 'insert'; st.yearFront = true; }
 if (st.fontVer !== 2) { if (st.font === "Futura, 'Futura PT', Jost" || st.font === 'Jost') st.font = "'Open Sans'"; st.fontVer = 2; } // 예전 기본 폰트로 저장된 설정은 Open Sans로
 if (st.sheet === 'a3') st.sheet = 'a4'; // 출력 용지에서 A3를 빼고 A5를 넣었어요
+if (st.wallPaper === 'a3') st.wallPaper = 'a4';
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
 
 const monthList = () => `<div class="mlist">${MONTHS.map(x => `<span>${x.toLowerCase()}</span>`).join('')}</div>`;
@@ -326,7 +327,7 @@ function spread(y, m) {
   return [pageHtml('L', [0,1,2], 1), pageHtml('R', [3,4,5,6], 0)];
 }
 
-const PAPERS = { a4: [210, 297], a5: [148, 210], a3: [297, 420] }; // a3는 큰 달력 전용
+const PAPERS = { a4: [210, 297], a5: [148, 210] };
 
 function layout() {
   const [pw0, ph0] = PAPERS[st.sheet], pw = +st.w, ph = +st.h, m = +st.safe;
