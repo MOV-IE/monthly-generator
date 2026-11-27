@@ -63,7 +63,7 @@ Your settings are saved in the browser and come back next time. **Reset (처음 
 **First print**
 - Print one sheet first and measure it with a ruler.
 - For two-sided, hold it up to the light to check the front and back line up. Some printers are off by 1–2mm.
-- Adjust room for ring holes with the **inner margin (안쪽 여백)**. The default is 6mm. Turn on **ring position (링 위치 표시)** in the preview to see the ring area on the inner edge of both pages as a light band with dashed lines and outlined holes (screen only).
+- Adjust room for ring holes with the **inner margin (안쪽 여백)**. The default is 10mm. Turn on **ring position (링 위치 표시)** in the preview to see the ring area on the inner edge of both pages as a light band with dashed lines and outlined holes (screen only).
 
 **Cutting and paper**
 - A4 and A5 layouts always show vertical and horizontal crop marks at every page boundary, running out to the paper edge. A craft knife and a ruler give clean edges.
