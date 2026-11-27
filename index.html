@@ -61,6 +61,8 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   .sheet{contain:strict}
   .sheetwrap:last-child .sheet{break-after:auto !important;page-break-after:auto !important}
 }
+.cpick{display:flex;gap:6px;align-items:center}
+.row input.hex{width:74px;padding:4px 6px;border:1px solid #ccc;border-radius:6px;font:inherit;font-family:ui-monospace,Menlo,monospace;font-size:12px;text-transform:uppercase}
 </style>
 <style id="dyn"></style>
 </head>
@@ -102,13 +104,13 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   </fieldset>
 
   <fieldset><legend>색</legend>
-    <div class="row"><label>선 색</label><input type="color" data-k="lineColor"></div>
+    <div class="row"><label>선 색</label><span class="cpick"><input type="color" data-k="lineColor"><input type="text" class="hex" data-hk="lineColor" maxlength="7" spellcheck="false" autocomplete="off"></span></div>
     <div class="row"><label>선 굵기 (mm)</label><input type="number" data-k="lineW" step=".05" min="0"></div>
-    <div class="row"><label>글자 색</label><input type="color" data-k="ink"></div>
-    <div class="row"><label>빨간날 색</label><input type="color" data-k="red"></div>
-    <div class="row"><label>연도 색</label><input type="color" data-k="yearColor"></div>
+    <div class="row"><label>글자 색</label><span class="cpick"><input type="color" data-k="ink"><input type="text" class="hex" data-hk="ink" maxlength="7" spellcheck="false" autocomplete="off"></span></div>
+    <div class="row"><label>빨간날 색</label><span class="cpick"><input type="color" data-k="red"><input type="text" class="hex" data-hk="red" maxlength="7" spellcheck="false" autocomplete="off"></span></div>
+    <div class="row"><label>연도 색</label><span class="cpick"><input type="color" data-k="yearColor"><input type="text" class="hex" data-hk="yearColor" maxlength="7" spellcheck="false" autocomplete="off"></span></div>
     <div class="row"><label>토요일도 색 표시</label><input type="checkbox" data-k="satColor"></div>
-    <div class="row" id="satRow"><label>토요일 색</label><input type="color" data-k="sat"></div>
+    <div class="row" id="satRow"><label>토요일 색</label><span class="cpick"><input type="color" data-k="sat"><input type="text" class="hex" data-hk="sat" maxlength="7" spellcheck="false" autocomplete="off"></span></div>
   </fieldset>
 
   <fieldset><legend>빨간날</legend>
@@ -173,7 +175,7 @@ let HOL = {"2026-01-01": "1월1일", "2026-02-17": "설날", "2026-02-16": "설�
 const DEFAULTS = {
   mode:'dated', year:2027, from:1, to:12, style:'1', yearPos:'month', rows:'6', weekStart:'0', dayCase:'lower', italic:false, monthItalic:false,
   font:"'Open Sans'", customFont:'', fsMonth:22, fsDay:9, fsDate:8, dateAlign:'center',
-  lineColor:'#5b4636', lineW:.15, ink:'#2b2b2b', red:'#c8463a', yearColor:'#888888', satColor:false, sat:'#3a62a8',
+  lineColor:'#1a1a1a', lineW:.15, ink:'#2b2b2b', red:'#c8463a', yearColor:'#888888', satColor:false, sat:'#3a62a8',
   holidays:true, extraRed:'',
   format:'insert', yearSize:'insert', yearFront:false, yearMonth:'full', yearWeight:'500', yearScale:1, wallPaper:'a4', wallOrient:'landscape', wallM:12, wallScale:1.6, showRing:true, sheet:'orig', orient:'auto', safe:5, duplex:'single', backX:0, backY:0,  w:86, h:171, mTop:4, mBot:7, mIn:6, mOut:3, dnH:6, zoom:1.6
 };
@@ -190,6 +192,7 @@ try {
 if (st.yearMonth === 'num') st.yearMonth = 'full';
 if (st.format === 'year') { st.format = 'insert'; st.yearFront = true; }
 if (st.fontVer !== 2) { if (st.font === "Futura, 'Futura PT', Jost" || st.font === 'Jost') st.font = "'Open Sans'"; st.fontVer = 2; } // 예전 기본 폰트로 저장된 설정은 Open Sans로
+if (st.lineVer !== 2) { if (st.lineColor === '#5b4636') st.lineColor = '#1a1a1a'; st.lineVer = 2; } // 예전 기본 선 색으로 저장된 설정은 새 기본값으로
 if (st.sheet === 'a3') st.sheet = 'a4'; // 출력 용지에서 A3를 빼고 A5를 넣었어요
 if (st.wallPaper === 'a3') st.wallPaper = 'a4';
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
@@ -526,6 +529,20 @@ function render() {
   save();
 }
 
+// 색은 고르개나 헥사 코드(#RRGGBB, #RGB, # 생략 가능)로 넣을 수 있어요
+function bindHex() {
+  document.querySelectorAll('input.hex').forEach(h => {
+    const k = h.dataset.hk, pick = document.querySelector(`input[type=color][data-k="${k}"]`);
+    h.value = String(st[k]).toUpperCase();
+    h.oninput = () => {
+      let v = h.value.trim(); if (v[0] !== '#') v = '#' + v;
+      if (/^#[0-9a-f]{3}$/i.test(v)) v = '#' + [...v.slice(1)].map(c => c + c).join('');
+      if (/^#[0-9a-f]{6}$/i.test(v)) { st[k] = v.toLowerCase(); pick.value = st[k]; pick.oninput && pick.oninput(); }
+    };
+    h.onblur = () => { h.value = String(st[k]).toUpperCase(); };
+    if (!pick._hex) { pick._hex = 1; pick.addEventListener('input', () => { if (document.activeElement !== h) h.value = pick.value.toUpperCase(); }); }
+  });
+}
 function bind() {
   document.querySelectorAll('[data-k]').forEach(el => {
     const k = el.dataset.k;
@@ -540,6 +557,7 @@ function bind() {
       el.oninput = () => { st[k] = (el.type === 'number' || el.type === 'range') ? (el.value === '' ? 0 : +el.value) : el.value; render(); };
     }
   });
+  bindHex();
 }
 
 document.getElementById('print').onclick = () => window.print();

@@ -17,7 +17,7 @@ The interface is in Korean. Korean labels are shown in brackets below so you can
 - **Big calendar (큰 달력):** one month per sheet with all 7 days in a row. Landscape or portrait, A4 or A5.
 - **Dated or undated (날짜형 / 만년형):** with year and dates printed, or blank to fill in by hand.
 - **Red days (빨간날):** Sundays and Korean public holidays, including substitute holidays, updated automatically every month. You can add your own dates too.
-- **Style:** month label (1 / 01 / jan / 1 jan.), first day of the week, text sizes, italics, line colour and weight, text colour. The line weight carries through to the printout.
+- **Style:** month label (1 / 01 / jan / 1 jan.), first day of the week, text sizes, italics, line colour (default #1A1A1A) and weight, text colour. The line weight carries through to the printout. Colours can be picked or typed as a hex code (#1A1A1A).
 - **Print layout:** save at insert size, or lay several pages onto A4 or A5 with crop marks, one-sided or two-sided.
 
 ## Automatic holiday updates
