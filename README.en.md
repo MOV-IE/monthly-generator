@@ -58,6 +58,7 @@ Your settings are saved in the browser and come back next time. **Reset (처음 
 - In **two-sided (양면)** layout, each leaf has this month's right page on the front and next month's left page on the back. Cut them and put them in order, and each month opens across a spread.
 - The front of the first leaf is blank and can be a cover. With **yearly page at the front** turned on, the yearly calendar goes there, and its back is January's left page.
 - Print portrait layouts with **flip on long edge** and landscape layouts with **flip on short edge**. The panel shows which one to use.
+- If the back is slightly off from the front, enter values in **back offset X / Y (mm)**. On A4 / A5 double-sided layouts this shifts only the back sheets. Positive X moves right and positive Y moves down, as seen looking at the back. Print a test sheet, hold it to the light, and enter the crop-mark offset in the opposite direction.
 
 **First print**
 - Print one sheet first and measure it with a ruler.
