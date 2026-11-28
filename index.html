@@ -58,6 +58,7 @@ textarea{width:100%;height:64px;border:1px solid #ccc;border-radius:6px;padding:
   .page.L{box-shadow:none}
   .sheet{box-shadow:none !important;margin:0 !important;break-after:page;page-break-after:always}
   .sheetlbl{display:none}
+  .sheetwrap{margin:0}
   .sheet{contain:strict}
   .sheetwrap:last-child .sheet{break-after:auto !important;page-break-after:auto !important}
 }
@@ -376,7 +377,7 @@ function placeSheet(slots, label, o, mirror) {
   // 뒷면 위치 보정: 프린터가 양면에서 뒷면을 밀어 찍을 때, 뒷면 전체(속지와 재단선)를 반대로 옮겨요
   const bx = mirror ? +st.backX || 0 : 0, by = mirror ? +st.backY || 0 : 0;
   if (bx || by) h = `<div style="position:absolute;left:0;top:0;width:100%;height:100%;transform:translate(${bx}mm,${by}mm)">${h}</div>`;
-  return `<div class="sheetwrap"><div class="sheetlbl">${label}</div><div class="sheet" style="width:${o.W - 0.2}mm;height:${o.H - 0.2}mm">${h}</div></div>`;
+  return `<div class="sheetwrap"><div class="sheetlbl">${label}</div><div class="sheet" style="width:${o.W - 0.2}mm;height:${o.H - 1}mm">${h}</div></div>`;
 }
 
 const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
